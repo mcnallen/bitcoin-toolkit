@@ -57,8 +57,16 @@ function fmtPct(n, d = 2) { return n.toFixed(d) + '%'; }
 
 async function fetchBtcPrice() {
   try {
-    const r = await fetch('https://api.coindesk.com/v1/bpi/currentprice/USD.json');
-    if (r.ok) { const d = await r.json(); return d.bpi.USD.rate_float; }
+    const r = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
+    if (r.ok) { const d = await r.json(); return parseFloat(d.data.amount); }
+  } catch (e) {}
+  try {
+    const r = await fetch('https://mempool.space/api/v1/prices');
+    if (r.ok) { const d = await r.json(); return d.USD; }
+  } catch (e) {}
+  try {
+    const r = await fetch('https://blockchain.info/ticker');
+    if (r.ok) { const d = await r.json(); return d.USD.last; }
   } catch (e) {}
   try {
     const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
