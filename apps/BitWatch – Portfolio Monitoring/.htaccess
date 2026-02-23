@@ -1,0 +1,2 @@
+# Allow direct access to all static files
+# No rewrite rules needed - WordPress handles page routing
