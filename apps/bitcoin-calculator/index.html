@@ -1,0 +1,497 @@
+<!--
+Bitcoin Calculator - Real-time BTC to USD/Sats Converter
+Copyright (c) 2026 (https://github.com/mcnallen, https://sats.network)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Calculator - Real-time BTC to USD/Sats Converter</title>
+    <meta name="description" content="Convert Bitcoin (BTC) to Satoshis and USD with real-time pricing. Accurate Bitcoin calculator with live market data.">
+
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQml0Y29pbiBDYWxjdWxhdG9yIiwic2hvcnRfbmFtZSI6IkJUQyBDYWxjIiwic3RhcnRfdXJsIjoiL2JpdGNvaW4tY2FsY3VsYXRvci8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZjdkN2Y3IiwidGhlbWVfY29sb3IiOiIjZjc5MzFhIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1qWWlJR2hsYVdkb2REMGlNallpSUhacFpYZENiM2c5SWpBZ01DQXlOaUQXeU5pSWdabWxzYkQwaUkyWTNPTU14WVNJK1BHTnBjbU5zWlNRZ1kzZzlJakV6SWlCamVUMGlNVE1pSUhJOUlqa2lMejQ4TDNOMlp6ND0iLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f9fafb; min-height: 100vh; color: #111827; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+        a { color: inherit; text-decoration: none; }
+        a:hover { color: #f7931a; transition: color 0.15s ease; }
+        button { cursor: pointer; font-family: inherit; }
+        input { font-family: inherit; }
+
+        .bitcoin-gradient { background: linear-gradient(135deg, #f7931a 0%, #d67e00 100%); }
+        .loading-spinner { border: 2px solid #f3f3f3; border-top: 2px solid #f7931a; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+        .header { background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border-bottom: 1px solid #e5e7eb; }
+        .header-inner { max-width: 80rem; margin: 0 auto; padding: 0 1rem; display: flex; justify-content: space-between; align-items: center; height: 4rem; }
+        .header-left { display: flex; align-items: center; gap: 0.75rem; }
+        .logo-circle { width: 2.5rem; height: 2.5rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; }
+        .logo-circle svg, .logo-circle i { color: #fff; }
+        .header-title { font-size: 1.25rem; font-weight: 700; color: #111827; }
+        .header-subtitle { font-size: 0.875rem; color: #6b7280; }
+        .status-wrap { display: flex; align-items: center; gap: 0.5rem; }
+        .status-dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; }
+        .status-dot-red { background-color: #ef4444; }
+        .status-dot-green { background-color: #22c55e; }
+        .status-text { font-size: 0.875rem; color: #4b5563; }
+
+        .main { max-width: 56rem; margin: 0 auto; padding: 2rem 1rem; }
+
+        .card { background: #fff; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -4px rgba(0,0,0,0.07); border: 1px solid #e5e7eb; margin-bottom: 2rem; }
+        .card-body { padding: 1.5rem; }
+        .card-center { text-align: center; }
+
+        .price-header { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .price-header svg, .price-header i { color: #f7931a; width: 1.5rem; height: 1.5rem; }
+        .price-title { font-size: 1.125rem; font-weight: 600; color: #111827; }
+        .price-value { font-size: 2.25rem; font-weight: 700; color: #111827; }
+        .price-change-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.25rem; }
+        .price-change { font-weight: 500; display: flex; align-items: center; gap: 0.25rem; }
+        .price-change svg { width: 1rem; height: 1rem; }
+        .text-green { color: #16a34a; }
+        .text-red { color: #dc2626; }
+        .text-muted { color: #6b7280; }
+        .text-muted-light { color: #9ca3af; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .last-updated { margin-top: 0.75rem; font-size: 0.875rem; color: #6b7280; }
+
+        .hidden { display: none !important; }
+        .flex-center { display: flex; justify-content: center; }
+
+        .error-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #dc2626; }
+        .error-row svg { width: 1.5rem; height: 1.5rem; }
+
+        .section-title { font-size: 1.25rem; font-weight: 600; color: #111827; margin-bottom: 0.5rem; }
+        .section-desc { color: #4b5563; margin-bottom: 1.5rem; }
+
+        .grid-3 { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        @media (min-width: 1024px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+
+        .field-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .field-label { display: flex; align-items: center; font-size: 0.875rem; font-weight: 500; color: #374151; }
+        .field-label svg, .field-label i { width: 1rem; height: 1rem; margin-right: 0.5rem; }
+        .label-icon-btc svg, .label-icon-btc i { color: #f7931a; }
+        .label-icon-sats svg, .label-icon-sats i { color: #f97316; }
+        .label-icon-usd svg, .label-icon-usd i { color: #16a34a; }
+        .input-wrap { position: relative; }
+        .calc-input { width: 100%; font-size: 1.125rem; font-weight: 500; padding: 0.75rem; padding-right: 3rem; border-radius: 0.75rem; border: 1px solid #d1d5db; outline: none; transition: box-shadow 0.15s ease, border-color 0.15s ease; }
+        .calc-input:focus { border-color: transparent; box-shadow: 0 0 0 2px #f7931a; }
+        .calc-input.sats-focus:focus { box-shadow: 0 0 0 2px #f97316; }
+        .calc-input.usd-focus:focus { box-shadow: 0 0 0 2px #16a34a; }
+        .input-suffix { position: absolute; top: 0; bottom: 0; right: 0; padding-right: 0.75rem; display: flex; align-items: center; pointer-events: none; font-size: 0.875rem; font-weight: 500; color: #6b7280; }
+        .field-hint { font-size: 0.75rem; color: #6b7280; }
+
+        .examples-wrap { margin-top: 2rem; padding: 1rem; background: #f9fafb; border-radius: 0.75rem; }
+        .examples-title { font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.75rem; }
+        .examples-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; font-size: 0.875rem; }
+        @media (min-width: 640px) { .examples-grid { grid-template-columns: repeat(3, 1fr); } }
+        .example-btn { padding: 0.75rem; background: #fff; border-radius: 0.5rem; border: 1px solid #e5e7eb; text-align: left; display: flex; flex-direction: column; align-items: flex-start; transition: all 0.2s ease; }
+        .example-btn:hover { background: #fff7ed; border-color: #f7931a; }
+        .example-btn.green:hover { background: #f0fdf4; border-color: #22c55e; }
+        .example-btn.orange:hover { background: #fff7ed; border-color: #f97316; }
+        .example-btn-label { font-weight: 500; color: #111827; }
+        .example-btn-value { color: #6b7280; }
+
+        .footer { margin-top: 2rem; text-align: center; font-size: 0.875rem; color: #6b7280; }
+
+        @media (min-width: 640px) { .header-inner, .main { padding-left: 1.5rem; padding-right: 1.5rem; } }
+        @media (min-width: 1024px) { .header-inner, .main { padding-left: 2rem; padding-right: 2rem; } }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <div class="header-left">
+                <div class="logo-circle bitcoin-gradient">
+                    <i data-lucide="bitcoin" aria-label="Bitcoin logo"></i>
+                </div>
+                <div>
+                    <h1 class="header-title"><a href="https://sats.network" target="_blank" rel="noopener noreferrer">Bitcoin Calculator</a></h1>
+                    <p class="header-subtitle">Real-time BTC converter</p>
+                </div>
+            </div>
+            <div class="status-wrap">
+                <div id="status-indicator" class="status-dot status-dot-red" aria-hidden="true"></div>
+                <span id="status-text" class="status-text" role="status">Connecting...</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="card">
+            <div class="card-body card-center">
+                <div class="price-header">
+                    <i data-lucide="bitcoin" aria-label="Bitcoin icon"></i>
+                    <h2 class="price-title">Current Bitcoin Price</h2>
+                </div>
+                <div>
+                    <div id="price-loading" class="flex-center">
+                        <div class="loading-spinner" role="status" aria-label="Loading price"></div>
+                    </div>
+                    <div id="price-display" class="hidden" aria-live="polite">
+                        <div id="current-price" class="price-value">$0.00</div>
+                        <div class="price-change-row">
+                            <span id="price-change" class="price-change text-green">
+                                <i data-lucide="trending-up" aria-label="Price trending up"></i>
+                                <span>+0.00%</span>
+                            </span>
+                            <span id="price-change-amount" class="text-muted">(+$0.00)</span>
+                            <span class="text-xs text-muted-light">24h</span>
+                        </div>
+                    </div>
+                    <div id="error-display" class="hidden error-row">
+                        <i data-lucide="alert-circle" aria-label="Error icon"></i>
+                        <span>Unable to load price</span>
+                    </div>
+                </div>
+                <div class="last-updated">
+                    Last updated: <span id="last-updated">Never</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h3 class="section-title">Convert</h3>
+                <p class="section-desc">Enter any amount to see conversions in real-time</p>
+
+                <div class="grid-3">
+                    <div class="field-group">
+                        <label for="btc-input" class="field-label label-icon-btc">
+                            <i data-lucide="bitcoin" aria-label="Bitcoin"></i>
+                            Bitcoin (BTC)
+                        </label>
+                        <div class="input-wrap">
+                            <input id="btc-input" type="number" placeholder="0.00000000" step="0.00000001" min="0" class="calc-input" aria-label="Amount in Bitcoin" />
+                            <div class="input-suffix"><span>BTC</span></div>
+                        </div>
+                        <p class="field-hint">Up to 8 decimal places</p>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="sats-input" class="field-label label-icon-sats">
+                            <i data-lucide="coins" aria-label="Satoshis"></i>
+                            Satoshis (sats)
+                        </label>
+                        <div class="input-wrap">
+                            <input id="sats-input" type="number" placeholder="0" step="1" min="0" class="calc-input sats-focus" aria-label="Amount in Satoshis" />
+                            <div class="input-suffix"><span>sats</span></div>
+                        </div>
+                        <p class="field-hint">1 BTC = 100,000,000 sats</p>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="usd-input" class="field-label label-icon-usd">
+                            <i data-lucide="dollar-sign" aria-label="US Dollars"></i>
+                            US Dollars (USD)
+                        </label>
+                        <div class="input-wrap">
+                            <input id="usd-input" type="number" placeholder="0.00" step="0.01" min="0" class="calc-input usd-focus" aria-label="Amount in US Dollars" />
+                            <div class="input-suffix"><span>USD</span></div>
+                        </div>
+                        <p class="field-hint">US Dollar amount</p>
+                    </div>
+                </div>
+
+                <div class="examples-wrap">
+                    <h4 class="examples-title">Quick Examples</h4>
+                    <div class="examples-grid">
+                        <button onclick="setExample('1btc')" class="example-btn" aria-label="Set example: 1 Bitcoin">
+                            <div class="example-btn-label">1 BTC</div>
+                            <div id="example-1btc" class="example-btn-value">Loading...</div>
+                        </button>
+                        <button onclick="setExample('1000usd')" class="example-btn green" aria-label="Set example: 1000 US Dollars">
+                            <div class="example-btn-label">$1,000</div>
+                            <div id="example-1000usd" class="example-btn-value">Loading...</div>
+                        </button>
+                        <button onclick="setExample('100msats')" class="example-btn orange" aria-label="Set example: 100 million Satoshis">
+                            <div class="example-btn-label">100M sats</div>
+                            <div class="example-btn-value">1 BTC</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Powered by multiple Bitcoin APIs for reliable price data</p>
+            <p class="text-xs" style="margin-top:0.25rem;">
+                &copy; 2026 <a href="https://sats.network" target="_blank" rel="noopener noreferrer">sats.network</a> &bull;
+                <a href="https://github.com/mcnallen/sats.network/tree/main/apps/bitcoin-calculator" target="_blank" rel="noopener noreferrer">Source on GitHub</a> &bull; MIT License
+            </p>
+        </div>
+    </main>
+
+    <script>
+        var SATS_PER_BTC = 100000000;
+        var MAX_BTC = 21000000;
+        var MAX_SATS = MAX_BTC * SATS_PER_BTC;
+        var MAX_USD = 1e15;
+        var currentPrice = 0;
+        var isUpdating = false;
+
+        var CORS_PROXIES = [
+            function(url) { return "https://corsproxy.io/?" + encodeURIComponent(url); },
+            function(url) { return "https://api.allorigins.win/raw?url=" + encodeURIComponent(url); }
+        ];
+
+        var APIs = [
+            {
+                name: "CoinGecko",
+                url: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true",
+                parser: function(data) {
+                    return {
+                        price: data.bitcoin.usd,
+                        priceChange24h: (data.bitcoin.usd * data.bitcoin.usd_24h_change) / 100,
+                        priceChangePercent24h: data.bitcoin.usd_24h_change
+                    };
+                }
+            },
+            {
+                name: "CoinCap",
+                url: "https://api.coincap.io/v2/assets/bitcoin",
+                parser: function(data) {
+                    return {
+                        price: parseFloat(data.data.priceUsd),
+                        priceChange24h: parseFloat(data.data.changePercent24Hr) * parseFloat(data.data.priceUsd) / 100,
+                        priceChangePercent24h: parseFloat(data.data.changePercent24Hr)
+                    };
+                }
+            },
+            {
+                name: "Blockchain.info",
+                url: "https://blockchain.info/ticker",
+                parser: function(data) {
+                    return {
+                        price: data.USD.last,
+                        priceChange24h: undefined,
+                        priceChangePercent24h: undefined
+                    };
+                }
+            }
+        ];
+
+        function debounce(fn, delay) {
+            var timer = null;
+            return function() {
+                var context = this;
+                var args = arguments;
+                if (timer) clearTimeout(timer);
+                timer = setTimeout(function() { fn.apply(context, args); }, delay);
+            };
+        }
+
+        function clamp(val, min, max) {
+            if (isNaN(val) || val < min) return min;
+            if (val > max) return max;
+            return val;
+        }
+
+        function isValidNumber(val) {
+            return val !== undefined && val !== null && !isNaN(val) && isFinite(val);
+        }
+
+        function fetchWithTimeout(url, timeoutMs) {
+            return new Promise(function(resolve, reject) {
+                var controller = new AbortController();
+                var timeoutId = setTimeout(function() { controller.abort(); }, timeoutMs);
+                fetch(url, {
+                    method: "GET",
+                    headers: { "Accept": "application/json" },
+                    signal: controller.signal
+                })
+                .then(function(response) {
+                    clearTimeout(timeoutId);
+                    if (!response.ok) throw new Error("HTTP " + response.status);
+                    return response.json();
+                })
+                .then(resolve)
+                .catch(reject);
+            });
+        }
+
+        async function tryFetchUrl(url) {
+            try {
+                return await fetchWithTimeout(url, 8000);
+            } catch (e) { /* direct failed, try proxies */ }
+
+            for (var p = 0; p < CORS_PROXIES.length; p++) {
+                try {
+                    return await fetchWithTimeout(CORS_PROXIES[p](url), 10000);
+                } catch (e) { /* proxy failed, try next */ }
+            }
+
+            throw new Error("All fetch attempts failed for " + url);
+        }
+
+        async function fetchBitcoinPrice() {
+            for (var i = 0; i < APIs.length; i++) {
+                var api = APIs[i];
+                try {
+                    var data = await tryFetchUrl(api.url);
+                    var result = api.parser(data);
+                    if (!result || !isValidNumber(result.price) || result.price <= 0) {
+                        throw new Error("Invalid price data");
+                    }
+                    return result;
+                } catch (e) {
+                    continue;
+                }
+            }
+            throw new Error("All Bitcoin price APIs failed");
+        }
+
+        function updatePriceDisplay(data) {
+            currentPrice = data.price;
+
+            document.getElementById("price-loading").classList.add("hidden");
+            document.getElementById("error-display").classList.add("hidden");
+            document.getElementById("price-display").classList.remove("hidden");
+
+            document.getElementById("current-price").textContent =
+                "$" + data.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            var changeElement = document.getElementById("price-change");
+            var changeAmountElement = document.getElementById("price-change-amount");
+
+            var hasPctChange = isValidNumber(data.priceChangePercent24h);
+            var hasAbsChange = isValidNumber(data.priceChange24h);
+            var isPositive = hasPctChange ? data.priceChangePercent24h >= 0 : true;
+
+            changeElement.className = "price-change " + (isPositive ? "text-green" : "text-red");
+
+            var oldIcon = changeElement.querySelector("i") || changeElement.querySelector("svg");
+            if (oldIcon) {
+                var newIcon = document.createElement("i");
+                newIcon.setAttribute("data-lucide", isPositive ? "trending-up" : "trending-down");
+                newIcon.setAttribute("aria-label", isPositive ? "Price trending up" : "Price trending down");
+                oldIcon.replaceWith(newIcon);
+            }
+
+            var spanEl = changeElement.querySelector("span");
+            if (spanEl) {
+                spanEl.textContent = hasPctChange
+                    ? (isPositive ? "+" : "") + data.priceChangePercent24h.toFixed(2) + "%"
+                    : "\u2014";
+            }
+
+            changeAmountElement.textContent = hasAbsChange
+                ? "(" + (isPositive ? "+" : "") + "$" + data.priceChange24h.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ")"
+                : "";
+
+            document.getElementById("last-updated").textContent = new Date().toLocaleTimeString();
+
+            var dot = document.getElementById("status-indicator");
+            dot.className = "status-dot status-dot-green animate-pulse";
+            document.getElementById("status-text").textContent = "Live";
+
+            document.getElementById("example-1btc").textContent = "$" + data.price.toLocaleString();
+            document.getElementById("example-1000usd").textContent = (1000 / data.price).toFixed(5) + " BTC";
+
+            lucide.createIcons();
+        }
+
+        function showError() {
+            document.getElementById("price-loading").classList.add("hidden");
+            document.getElementById("price-display").classList.add("hidden");
+            document.getElementById("error-display").classList.remove("hidden");
+
+            var dot = document.getElementById("status-indicator");
+            dot.className = "status-dot status-dot-red";
+            document.getElementById("status-text").textContent = "Error";
+        }
+
+        async function loadBitcoinPrice() {
+            try {
+                var data = await fetchBitcoinPrice();
+                updatePriceDisplay(data);
+            } catch (e) {
+                showError();
+            }
+        }
+
+        function convertBtcToOthers(btc) {
+            if (!currentPrice || !btc || isNaN(parseFloat(btc))) return;
+            var btcValue = clamp(parseFloat(btc), 0, MAX_BTC);
+            var satsValue = Math.round(btcValue * SATS_PER_BTC);
+            var usdValue = btcValue * currentPrice;
+            document.getElementById("sats-input").value = satsValue.toString();
+            document.getElementById("usd-input").value = usdValue.toFixed(2);
+        }
+
+        function convertSatsToOthers(sats) {
+            if (!currentPrice || !sats || isNaN(parseFloat(sats))) return;
+            var satsValue = clamp(parseFloat(sats), 0, MAX_SATS);
+            var btcValue = satsValue / SATS_PER_BTC;
+            var usdValue = btcValue * currentPrice;
+            document.getElementById("btc-input").value = btcValue.toFixed(8);
+            document.getElementById("usd-input").value = usdValue.toFixed(2);
+        }
+
+        function convertUsdToOthers(usd) {
+            if (!currentPrice || !usd || isNaN(parseFloat(usd))) return;
+            var usdValue = clamp(parseFloat(usd), 0, MAX_USD);
+            var btcValue = usdValue / currentPrice;
+            var satsValue = Math.round(btcValue * SATS_PER_BTC);
+            document.getElementById("btc-input").value = btcValue.toFixed(8);
+            document.getElementById("sats-input").value = satsValue.toString();
+        }
+
+        function setExample(type) {
+            if (!currentPrice) return;
+            switch (type) {
+                case "1btc":
+                    document.getElementById("btc-input").value = "1";
+                    convertBtcToOthers("1");
+                    break;
+                case "1000usd":
+                    document.getElementById("usd-input").value = "1000";
+                    convertUsdToOthers("1000");
+                    break;
+                case "100msats":
+                    document.getElementById("sats-input").value = "100000000";
+                    convertSatsToOthers("100000000");
+                    break;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            lucide.createIcons();
+
+            var debouncedBtc = debounce(function(val) {
+                if (!isUpdating) { isUpdating = true; convertBtcToOthers(val); isUpdating = false; }
+            }, 150);
+            var debouncedSats = debounce(function(val) {
+                if (!isUpdating) { isUpdating = true; convertSatsToOthers(val); isUpdating = false; }
+            }, 150);
+            var debouncedUsd = debounce(function(val) {
+                if (!isUpdating) { isUpdating = true; convertUsdToOthers(val); isUpdating = false; }
+            }, 150);
+
+            document.getElementById("btc-input").addEventListener("input", function(e) { debouncedBtc(e.target.value); });
+            document.getElementById("sats-input").addEventListener("input", function(e) { debouncedSats(e.target.value); });
+            document.getElementById("usd-input").addEventListener("input", function(e) { debouncedUsd(e.target.value); });
+
+            loadBitcoinPrice();
+            setInterval(loadBitcoinPrice, 30000);
+        });
+    </script>
+</body>
+</html>

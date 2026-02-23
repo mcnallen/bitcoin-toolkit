@@ -1,0 +1,24 @@
+# Bitcoin Calculator - Apache URL Rewrite Rules
+#
+# HOW TO CONFIGURE FOR YOUR FOLDER NAME:
+#
+# By default, this file assumes the app lives in /bitcoin-calculator/.
+# If you use a different folder name, change BOTH lines below that
+# reference "bitcoin-calculator" to match your folder name.
+#
+# Example: If your folder is called /btc-calc/, change:
+#   RewriteBase /bitcoin-calculator/       -->  RewriteBase /btc-calc/
+#   RewriteRule . /bitcoin-calculator/...  -->  RewriteRule . /btc-calc/...
+#
+# TO RUN FROM THE ROOT OF YOUR DOMAIN (no subfolder):
+# Change the two lines to:
+#   RewriteBase /
+#   RewriteRule . /index.html [L]
+#
+
+RewriteEngine On
+RewriteBase /bitcoin-calculator/
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /bitcoin-calculator/index.html [L]
