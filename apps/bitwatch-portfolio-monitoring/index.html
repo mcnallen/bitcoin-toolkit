@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BitWatch - Bitcoin Address Portfolio Tracker</title>
+  <meta name="description" content="Monitor your Bitcoin addresses, track balances, and receive transaction alerts. Watch-only wallet for estate planning, savings tracking, and cold storage monitoring.">
+  <meta property="og:title" content="BitWatch - Bitcoin Portfolio Tracker">
+  <meta property="og:description" content="Track Bitcoin addresses, monitor balances, and receive transaction alerts.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>₿</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="flex items-center justify-between">
+        <a href="https://sats.network/" class="header-title">
+          <div class="header-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727"/></svg>
+          </div>
+          <h1>BitWatch</h1>
+        </a>
+        <div class="flex items-center gap-2">
+          <button class="btn btn-ghost btn-icon" onclick="openModal('settings')" title="Settings">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <button class="btn btn-ghost btn-icon" onclick="openModal('notifications')" title="Notifications" style="position:relative;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span id="notif-badge" class="hidden" style="position:absolute;top:-2px;right:-2px;background:var(--primary);color:white;font-size:10px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;">0</span>
+          </button>
+        </div>
+      </div>
+      <div class="price-widget" id="price-widget">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="icon-circle bitcoin-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727"/></svg>
+            </div>
+            <div>
+              <div style="font-weight:600;">Bitcoin</div>
+              <div class="text-xs text-muted">BTC</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="badge badge-muted"><span class="live-dot pulse"></span> Live</span>
+            <button class="btn btn-ghost btn-icon" onclick="refreshPrice()" id="btn-refresh-price" title="Refresh price">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="mt-2">
+          <div class="price-large" id="price-value">Loading...</div>
+          <div class="text-xs text-muted mt-2" id="price-updated"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-6 mb-6" style="margin-top:24px;">
+      <div class="flex items-center justify-between mb-4" style="flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="font-size:18px;font-weight:600;">Portfolio Overview</h2>
+          <p class="text-sm text-muted">Monitor your Bitcoin addresses and track balances</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn" onclick="openModal('backup')">&#x2913; Backup</button>
+          <button class="btn btn-primary" onclick="openModal('addAddress')">+ Add Address</button>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="card p-4" style="border-color:rgba(247,147,26,0.2);">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-muted">Total Balance</span>
+            <div class="flex items-center gap-2">
+              <button class="btn btn-ghost btn-sm btn-icon" onclick="toggleSats()" title="Toggle satoshis">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <button class="btn btn-ghost btn-sm btn-icon" onclick="refreshAllBalances()" title="Refresh balances">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+              </button>
+              <div class="icon-circle" style="background:rgba(247,147,26,0.1);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727"/></svg>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:22px;font-weight:700;" id="total-btc">0.00000000 BTC</div>
+          <div class="text-muted" id="total-usd">$0.00</div>
+          <div class="text-xs text-muted hidden" id="total-sats" style="margin-top:4px;"></div>
+        </div>
+        <div class="card p-4" style="border-color:rgba(224,124,16,0.2);">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-muted">Addresses</span>
+            <div class="icon-circle" style="background:rgba(224,124,16,0.1);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+            </div>
+          </div>
+          <div style="font-size:22px;font-weight:700;" id="address-count">0</div>
+          <div class="text-sm text-muted">Active addresses</div>
+        </div>
+        <div class="card p-4" style="border-color:rgba(34,197,94,0.2);">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-muted">Monitoring</span>
+            <div class="icon-circle" style="background:rgba(34,197,94,0.1);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+          </div>
+          <div style="font-size:22px;font-weight:700;" id="monitoring-status">Inactive</div>
+          <div class="text-sm text-muted" id="monitoring-detail">Add addresses to start</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 style="font-size:18px;font-weight:600;">Monitored Addresses</h3>
+        <div class="flex items-center gap-2">
+          <button class="btn btn-ghost btn-icon" onclick="refreshAllBalances()" title="Refresh">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+          </button>
+          <select id="filter-category" onchange="renderAddresses()" style="width:auto;padding:6px 10px;font-size:13px;">
+            <option value="all">All Addresses</option>
+            <option value="savings">Savings</option>
+            <option value="inheritance">Inheritance</option>
+            <option value="cold_storage">Cold Storage</option>
+            <option value="hot_wallet">Hot Wallet</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div id="address-list"></div>
+    </div>
+
+    <div class="mb-6">
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 style="font-size:18px;font-weight:600;">Recent Alerts</h3>
+          <div class="flex items-center gap-2">
+            <button class="btn btn-ghost btn-sm" onclick="manualRefreshMonitor()" title="Refresh alerts">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="openModal('notifications')" style="color:var(--primary);">View All</button>
+          </div>
+        </div>
+        <div id="alerts-list">
+          <div style="text-align:center;padding:24px 0;">
+            <p class="text-muted">No recent alerts</p>
+            <p class="text-xs text-muted" style="margin-top:4px;">Transaction alerts will appear here when activity is detected</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Address Modal -->
+  <div class="modal-overlay" id="modal-addAddress">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Add Bitcoin Address</h2>
+        <p>Add a Bitcoin address to monitor its balance and transaction activity.</p>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="handleAddAddress(event)">
+          <div class="form-group">
+            <label for="add-address">Bitcoin Address</label>
+            <textarea id="add-address" rows="3" placeholder="Enter Bitcoin address (bc1..., 1..., 3...)"></textarea>
+            <div class="form-error hidden" id="add-address-error"></div>
+            <p class="text-xs text-muted" style="margin-top:4px;">Supports all types: Legacy (P2PKH), P2SH, Bech32, and Taproot (P2TR)</p>
+          </div>
+          <div class="form-group">
+            <label for="add-label">Address Label</label>
+            <input id="add-label" placeholder="e.g., Savings Wallet, Cold Storage">
+            <div class="form-error hidden" id="add-label-error"></div>
+          </div>
+          <div class="form-group">
+            <label for="add-category">Category</label>
+            <select id="add-category">
+              <option value="savings">Savings</option>
+              <option value="inheritance">Inheritance</option>
+              <option value="cold_storage">Cold Storage</option>
+              <option value="hot_wallet">Hot Wallet</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-row">
+              <input type="checkbox" id="add-alerts" checked>
+              <span class="text-sm">Enable transaction alerts for this address</span>
+            </label>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn" onclick="closeModal('addAddress')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Address</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Address Modal -->
+  <div class="modal-overlay" id="modal-editAddress">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Edit Address</h2>
+        <p>Update the label and category for this Bitcoin address.</p>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="handleEditAddress(event)">
+          <div class="form-group">
+            <label>Bitcoin Address</label>
+            <div class="addr-code mono break-all text-sm" id="edit-address-display" style="padding:12px;"></div>
+          </div>
+          <div class="form-group">
+            <label for="edit-label">Label</label>
+            <input id="edit-label" placeholder="e.g., My Cold Storage">
+          </div>
+          <div class="form-group">
+            <label for="edit-category">Category</label>
+            <select id="edit-category">
+              <option value="savings">Savings</option>
+              <option value="inheritance">Inheritance</option>
+              <option value="cold_storage">Cold Storage</option>
+              <option value="hot_wallet">Hot Wallet</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-row">
+              <input type="checkbox" id="edit-alerts" checked>
+              <span class="text-sm">Enable transaction alerts for this address</span>
+            </label>
+          </div>
+          <input type="hidden" id="edit-id">
+          <div class="btn-row">
+            <button type="button" class="btn" onclick="closeModal('editAddress')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Update Address</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transaction History Modal -->
+  <div class="modal-overlay" id="modal-transactions">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <div class="flex items-center justify-between">
+          <h2 id="tx-modal-title">Transaction History</h2>
+          <button class="btn btn-ghost btn-icon" onclick="closeModal('transactions')">&#x2715;</button>
+        </div>
+        <div class="addr-code mono break-all text-xs mt-2" id="tx-modal-address" style="padding:8px 12px;"></div>
+      </div>
+      <div class="modal-body">
+        <div class="scroll-area" id="tx-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="modal-settings">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <p>Manage your BitWatch preferences.</p>
+      </div>
+      <div class="modal-body">
+        <div class="card p-4 mb-4">
+          <label class="checkbox-row mb-2">
+            <input type="checkbox" id="setting-notifications" checked>
+            <span class="text-sm" style="font-weight:500;">Enable browser notifications</span>
+          </label>
+          <p class="text-xs text-muted">Receive browser notifications for new transactions</p>
+        </div>
+        <div class="card p-4 mb-4">
+          <label class="checkbox-row mb-2">
+            <input type="checkbox" id="setting-satoshis">
+            <span class="text-sm" style="font-weight:500;">Show satoshi amounts</span>
+          </label>
+          <p class="text-xs text-muted">Display amounts in satoshis alongside BTC values</p>
+        </div>
+        <div class="card p-4 mb-4">
+          <label style="font-weight:500;margin-bottom:8px;">Data Management</label>
+          <button class="btn btn-danger" style="width:100%;" onclick="clearAllData()">Clear All Data</button>
+          <p class="text-xs text-muted" style="margin-top:8px;">This will remove all addresses, alerts, and settings. Cannot be undone.</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="closeModal('settings')">Cancel</button>
+          <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications Modal -->
+  <div class="modal-overlay" id="modal-notifications">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <div class="flex items-center justify-between" style="flex-wrap:wrap;gap:8px;">
+          <div class="flex items-center gap-2">
+            <h2>Notifications</h2>
+            <span class="badge badge-primary hidden" id="notif-modal-badge">0 new</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="btn btn-sm" id="btn-notif-filter" onclick="toggleNotifFilter()">Show Unread</button>
+            <button class="btn btn-sm" onclick="dismissAllAlerts()">Mark All Read</button>
+            <button class="btn btn-sm" onclick="clearAllAlerts()">Clear All</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="scroll-area" id="notif-list"></div>
+        <div class="btn-row" style="justify-content:flex-end;">
+          <button class="btn" onclick="closeModal('notifications')">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Backup Modal -->
+  <div class="modal-overlay" id="modal-backup">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Backup & Restore</h2>
+        <p>Export your wallet data or restore from a backup file.</p>
+      </div>
+      <div class="modal-body">
+        <div class="mb-4">
+          <h3 class="text-sm" style="font-weight:600;margin-bottom:8px;">Export Data</h3>
+          <p class="text-xs text-muted mb-2">Download your addresses, alerts, and settings as a backup file</p>
+          <button class="btn btn-primary" style="width:100%;" onclick="exportBackup()">Download Backup</button>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:16px;" class="mb-4">
+          <h3 class="text-sm" style="font-weight:600;margin-bottom:8px;">Import Data</h3>
+          <p class="text-xs text-muted mb-2">Restore addresses and settings from a backup file</p>
+          <div style="position:relative;">
+            <input type="file" accept=".json" id="import-file" onchange="importBackup(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;">
+            <button class="btn" style="width:100%;pointer-events:none;">Select Backup File</button>
+          </div>
+        </div>
+        <div class="warning-box mb-4">
+          <strong>Warning:</strong> Importing will replace your current data. Export a backup first if you want to keep existing addresses.
+        </div>
+        <button class="btn" style="width:100%;" onclick="closeModal('backup')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+
+  <script src="app.js"></script>
+</body>
+</html>
