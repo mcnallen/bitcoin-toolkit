@@ -82,7 +82,7 @@ your-web-root/
 
 ### Running from a subfolder (e.g., WordPress site)
 
-Upload the files to a subfolder like `/bitcoin-ranking/` on your site. The default paths already point to `/bitcoin-ranking/static/`, so no changes are needed. You can load it via iframe or reference the JS module directly from a WordPress page using `<div id="root"></div>`.
+Upload the files to a subfolder like `/bitcoin-ranking/` on your site. The default paths already point to `/bitcoin-ranking/static/`, so no changes are needed. If you wish to put it in a WordPress page you can load it via iframe or reference the JS module directly from a WordPress page using `<div id="root"></div>`.
 
 ### Hosting
 
