@@ -1,4 +1,4 @@
-# Bitcoin Calculator & Converter – BTC to USD/Sats (Real-Time, Static HTML)
+# Bitcoin Calculator
 
 A real-time Bitcoin to USD and Satoshis converter. Single static HTML file with no build step or server required.
 

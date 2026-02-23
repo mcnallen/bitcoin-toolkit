@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f9fafb; min-height: 100vh; color: #111827; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+        body { font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; background-color: #f9fafb; min-height: 100vh; color: #111827; line-height: 1.5; -webkit-font-smoothing: antialiased; }
         a { color: inherit; text-decoration: none; }
         a:hover { color: #f7931a; transition: color 0.15s ease; }
         button { cursor: pointer; font-family: inherit; }
@@ -54,10 +54,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         .card-center { text-align: center; }
 
         .price-header { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem; }
-        .price-header svg, .price-header i { color: #f7931a; width: 1.5rem; height: 1.5rem; }
+        .price-header svg, .price-header i { color: hsl(42,96%,50%); width: 1.5rem; height: 1.5rem; }
         .price-title { font-size: 1.125rem; font-weight: 600; color: #111827; }
         .price-value { font-size: 2.25rem; font-weight: 700; color: #111827; }
         .price-change-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.25rem; }
+        .refresh-btn { background: none; border: none; padding: 0.125rem; color: #9ca3af; border-radius: 0.25rem; display: inline-flex; align-items: center; justify-content: center; transition: color 0.15s ease; }
+        .refresh-btn:hover { color: #6b7280; }
+        .refresh-btn svg, .refresh-btn i { width: 0.75rem; height: 0.75rem; }
+        .refresh-btn.spinning svg { animation: spin 0.6s linear infinite; }
         .price-change { font-weight: 500; display: flex; align-items: center; gap: 0.25rem; }
         .price-change svg { width: 1rem; height: 1rem; }
         .text-green { color: #16a34a; }
@@ -83,8 +87,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         .field-group { display: flex; flex-direction: column; gap: 0.5rem; }
         .field-label { display: flex; align-items: center; font-size: 0.875rem; font-weight: 500; color: #374151; }
         .field-label svg, .field-label i { width: 1rem; height: 1rem; margin-right: 0.5rem; }
-        .label-icon-btc svg, .label-icon-btc i { color: #f7931a; }
-        .label-icon-sats svg, .label-icon-sats i { color: #f97316; }
+        .label-icon-btc svg, .label-icon-btc i { color: hsl(42,96%,50%); }
+        .label-icon-sats svg, .label-icon-sats i { color: hsl(25,95%,53%); }
         .label-icon-usd svg, .label-icon-usd i { color: #16a34a; }
         .input-wrap { position: relative; }
         .calc-input { width: 100%; font-size: 1.125rem; font-weight: 500; padding: 0.75rem; padding-right: 3rem; border-radius: 0.75rem; border: 1px solid #d1d5db; outline: none; transition: box-shadow 0.15s ease, border-color 0.15s ease; }
@@ -104,6 +108,44 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         .example-btn.orange:hover { background: #fff7ed; border-color: #f97316; }
         .example-btn-label { font-weight: 500; color: #111827; }
         .example-btn-value { color: #6b7280; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+        @media (min-width: 640px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+        .stat-card { background: #fff; border-radius: 0.5rem; padding: 1.5rem; border: 1px solid #e5e7eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+        .stat-label { font-size: 0.875rem; font-weight: 500; color: #4b5563; }
+        .stat-icon { width: 1.25rem; height: 1.25rem; }
+        .stat-icon svg, .stat-icon i { width: 1.25rem; height: 1.25rem; }
+        .stat-icon-mcap svg, .stat-icon-mcap i { color: #3b82f6; }
+        .stat-icon-vol svg, .stat-icon-vol i { color: #a855f7; }
+        .stat-icon-supply svg, .stat-icon-supply i { color: hsl(42,96%,50%); }
+        .stat-icon-dom svg, .stat-icon-dom i { color: #eab308; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem; }
+        .stat-sub { font-size: 0.875rem; color: #6b7280; }
+
+        .about-card { background: linear-gradient(135deg, rgba(247,147,26,0.1) 0%, #fed7aa40 100%); border-radius: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; margin-bottom: 2rem; }
+        .about-body { padding: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; }
+        .about-icon-wrap { flex-shrink: 0; width: 3rem; height: 3rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f7931a 0%, #d67e00 100%); }
+        .about-icon-wrap svg, .about-icon-wrap i { width: 1.25rem; height: 1.25rem; color: #fff; }
+        .about-content { flex: 1; }
+        .about-title { font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 0.5rem; }
+        .about-text { font-size: 0.875rem; color: #374151; line-height: 1.7; margin-bottom: 1rem; }
+        .about-features { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
+        @media (min-width: 640px) { .about-features { grid-template-columns: 1fr 1fr; } }
+        .about-feature { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #374151; }
+        .about-feature svg, .about-feature i { width: 1rem; height: 1rem; color: #16a34a; flex-shrink: 0; }
+
+        .api-status { text-align: center; margin-bottom: 0.5rem; }
+        .api-status-title { font-size: 0.6875rem; color: #9ca3af; margin-bottom: 0.375rem; }
+        .api-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.375rem 0.75rem; }
+        .api-row { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.6875rem; }
+        .api-dot { width: 0.375rem; height: 0.375rem; border-radius: 9999px; flex-shrink: 0; }
+        .api-dot-green { background-color: #22c55e; }
+        .api-dot-red { background-color: #ef4444; }
+        .api-dot-gray { background-color: #d1d5db; }
+        .api-name { color: #6b7280; }
+        .api-name-active { color: #374151; font-weight: 500; }
+        .api-method { font-size: 0.625rem; color: #9ca3af; }
 
         .footer { margin-top: 2rem; text-align: center; font-size: 0.875rem; color: #6b7280; }
 
@@ -154,6 +196,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
                             </span>
                             <span id="price-change-amount" class="text-muted">(+$0.00)</span>
                             <span class="text-xs text-muted-light">24h</span>
+                            <button id="refresh-price-btn" class="refresh-btn" onclick="manualRefresh()" title="Refresh price" data-testid="button-refresh-price"><i data-lucide="refresh-cw"></i></button>
                         </div>
                     </div>
                     <div id="error-display" class="hidden error-row">
@@ -230,6 +273,82 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             </div>
         </div>
 
+        <div id="market-stats" class="stats-grid hidden">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-label">Market Cap</div>
+                    <div class="stat-icon stat-icon-mcap"><i data-lucide="chart-pie"></i></div>
+                </div>
+                <div id="stat-mcap" class="stat-value">&mdash;</div>
+                <div id="stat-mcap-sub" class="stat-sub"></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-label">24h Volume</div>
+                    <div class="stat-icon stat-icon-vol"><i data-lucide="chart-column"></i></div>
+                </div>
+                <div id="stat-volume" class="stat-value">&mdash;</div>
+                <div class="stat-sub">Active trading</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-label">Circulating Supply</div>
+                    <div class="stat-icon stat-icon-supply"><i data-lucide="coins"></i></div>
+                </div>
+                <div id="stat-supply" class="stat-value">&mdash;</div>
+                <div class="stat-sub">of 21M total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-label">Dominance</div>
+                    <div class="stat-icon stat-icon-dom"><i data-lucide="crown"></i></div>
+                </div>
+                <div id="stat-dominance" class="stat-value">&mdash;</div>
+                <div class="stat-sub">Market share</div>
+            </div>
+        </div>
+
+        <div class="about-card">
+            <div class="about-body">
+                <div class="about-icon-wrap">
+                    <i data-lucide="info"></i>
+                </div>
+                <div class="about-content">
+                    <h4 class="about-title">About Bitcoin Calculator</h4>
+                    <p class="about-text">This calculator provides real-time Bitcoin price conversions between BTC, Satoshis, and USD. Data is fetched from reliable cryptocurrency APIs and updated automatically.</p>
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <i data-lucide="circle-check" aria-label="Real-time updates"></i>
+                            <span>Real-time price updates</span>
+                        </div>
+                        <div class="about-feature">
+                            <i data-lucide="circle-check" aria-label="Accurate"></i>
+                            <span>Accurate conversions</span>
+                        </div>
+                        <div class="about-feature">
+                            <i data-lucide="circle-check" aria-label="Mobile responsive"></i>
+                            <span>Mobile responsive</span>
+                        </div>
+                        <div class="about-feature">
+                            <i data-lucide="circle-check" aria-label="Satoshis"></i>
+                            <span>1 BTC = 100,000,000 sats</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="api-status">
+            <div class="api-status-title">Data Sources</div>
+            <div id="api-list" class="api-list">
+                <div id="api-row-coinbase" class="api-row"><div class="api-dot api-dot-gray"></div><span class="api-name">Coinbase</span><span class="api-method"></span></div>
+                <div id="api-row-coingecko" class="api-row"><div class="api-dot api-dot-gray"></div><span class="api-name">CoinGecko</span><span class="api-method"></span></div>
+                <div id="api-row-kraken" class="api-row"><div class="api-dot api-dot-gray"></div><span class="api-name">Kraken</span><span class="api-method"></span></div>
+                <div id="api-row-coincap" class="api-row"><div class="api-dot api-dot-gray"></div><span class="api-name">CoinCap</span><span class="api-method"></span></div>
+                <div id="api-row-blockchain" class="api-row"><div class="api-dot api-dot-gray"></div><span class="api-name">Blockchain.info</span><span class="api-method"></span></div>
+            </div>
+        </div>
+
         <div class="footer">
             <p>Powered by multiple Bitcoin APIs for reliable price data</p>
             <p class="text-xs" style="margin-top:0.25rem;">
@@ -254,13 +373,43 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
         var APIs = [
             {
+                name: "Coinbase",
+                url: "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+                parser: function(data) {
+                    return {
+                        price: parseFloat(data.data.amount),
+                        priceChange24h: undefined,
+                        priceChangePercent24h: undefined
+                    };
+                }
+            },
+            {
                 name: "CoinGecko",
-                url: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true",
+                url: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true",
                 parser: function(data) {
                     return {
                         price: data.bitcoin.usd,
                         priceChange24h: (data.bitcoin.usd * data.bitcoin.usd_24h_change) / 100,
-                        priceChangePercent24h: data.bitcoin.usd_24h_change
+                        priceChangePercent24h: data.bitcoin.usd_24h_change,
+                        marketCap: data.bitcoin.usd_market_cap,
+                        volume24h: data.bitcoin.usd_24h_vol
+                    };
+                }
+            },
+            {
+                name: "Kraken",
+                url: "https://api.kraken.com/0/public/Ticker?pair=XBTUSD",
+                parser: function(data) {
+                    var t = data.result.XXBTZUSD;
+                    var last = parseFloat(t.c[0]);
+                    var open = parseFloat(t.o);
+                    var change = last - open;
+                    var changePct = (change / open) * 100;
+                    return {
+                        price: last,
+                        priceChange24h: change,
+                        priceChangePercent24h: changePct,
+                        volume24h: parseFloat(t.v[1]) * last
                     };
                 }
             },
@@ -271,7 +420,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
                     return {
                         price: parseFloat(data.data.priceUsd),
                         priceChange24h: parseFloat(data.data.changePercent24Hr) * parseFloat(data.data.priceUsd) / 100,
-                        priceChangePercent24h: parseFloat(data.data.changePercent24Hr)
+                        priceChangePercent24h: parseFloat(data.data.changePercent24Hr),
+                        marketCap: parseFloat(data.data.marketCapUsd),
+                        volume24h: parseFloat(data.data.volumeUsd24Hr),
+                        supply: parseFloat(data.data.supply),
+                        maxSupply: parseFloat(data.data.maxSupply)
                     };
                 }
             },
@@ -308,6 +461,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             return val !== undefined && val !== null && !isNaN(val) && isFinite(val);
         }
 
+        function formatCompact(num) {
+            if (!isValidNumber(num)) return "\u2014";
+            if (num >= 1e12) return "$" + (num / 1e12).toFixed(2) + "T";
+            if (num >= 1e9) return "$" + (num / 1e9).toFixed(2) + "B";
+            if (num >= 1e6) return "$" + (num / 1e6).toFixed(2) + "M";
+            return "$" + num.toLocaleString(undefined, { maximumFractionDigits: 0 });
+        }
+
         function fetchWithTimeout(url, timeoutMs) {
             return new Promise(function(resolve, reject) {
                 var controller = new AbortController();
@@ -327,14 +488,43 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             });
         }
 
+        var apiRowIds = ["api-row-coinbase", "api-row-coingecko", "api-row-kraken", "api-row-coincap", "api-row-blockchain"];
+        var apiStatuses = {};
+
+        function updateApiRow(index, status, method) {
+            var rowId = apiRowIds[index];
+            var row = document.getElementById(rowId);
+            if (!row) return;
+            var dot = row.querySelector(".api-dot");
+            var nameEl = row.querySelector(".api-name");
+            var methodEl = row.querySelector(".api-method");
+
+            dot.className = "api-dot";
+            nameEl.className = "api-name";
+
+            if (status === "active") {
+                dot.classList.add("api-dot-green");
+                nameEl.classList.add("api-name-active");
+            } else if (status === "offline") {
+                dot.classList.add("api-dot-red");
+            } else {
+                dot.classList.add("api-dot-gray");
+            }
+
+            methodEl.textContent = (status === "active" && method) ? method : "";
+        }
+
         async function tryFetchUrl(url) {
             try {
-                return await fetchWithTimeout(url, 8000);
+                var data = await fetchWithTimeout(url, 8000);
+                return { data: data, method: "Direct" };
             } catch (e) { /* direct failed, try proxies */ }
 
             for (var p = 0; p < CORS_PROXIES.length; p++) {
                 try {
-                    return await fetchWithTimeout(CORS_PROXIES[p](url), 10000);
+                    var proxyName = p === 0 ? "via corsproxy.io" : "via allorigins.win";
+                    var data = await fetchWithTimeout(CORS_PROXIES[p](url), 10000);
+                    return { data: data, method: proxyName };
                 } catch (e) { /* proxy failed, try next */ }
             }
 
@@ -345,17 +535,64 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             for (var i = 0; i < APIs.length; i++) {
                 var api = APIs[i];
                 try {
-                    var data = await tryFetchUrl(api.url);
-                    var result = api.parser(data);
+                    var fetched = await tryFetchUrl(api.url);
+                    var result = api.parser(fetched.data);
                     if (!result || !isValidNumber(result.price) || result.price <= 0) {
                         throw new Error("Invalid price data");
                     }
+                    updateApiRow(i, "active", fetched.method);
+                    for (var j = 0; j < i; j++) {
+                        updateApiRow(j, "offline", "");
+                    }
                     return result;
                 } catch (e) {
-                    continue;
+                    updateApiRow(i, "offline", "");
                 }
             }
             throw new Error("All Bitcoin price APIs failed");
+        }
+
+        var lastKnownVolume = null;
+
+        function estimateCirculatingSupply() {
+            var anchorSupply = 19822265;
+            var anchorTime = new Date("2026-02-23T00:00:00Z").getTime();
+            var currentReward = 3.125;
+            var now = Date.now();
+            var blocksSinceAnchor = Math.max(0, Math.floor((now - anchorTime) / (10 * 60 * 1000)));
+            var newBtc = blocksSinceAnchor * currentReward;
+            return Math.min(anchorSupply + newBtc, 21000000);
+        }
+
+        function updateMarketStats(data, dominance) {
+            var statsCard = document.getElementById("market-stats");
+            statsCard.classList.remove("hidden");
+
+            if (isValidNumber(data.marketCap)) {
+                document.getElementById("stat-mcap").textContent = formatCompact(data.marketCap);
+                var hasPct = isValidNumber(data.priceChangePercent24h);
+                document.getElementById("stat-mcap-sub").textContent = hasPct
+                    ? "24h: " + (data.priceChangePercent24h >= 0 ? "+" : "") + data.priceChangePercent24h.toFixed(2) + "%"
+                    : "";
+            }
+
+            if (isValidNumber(data.volume24h)) {
+                lastKnownVolume = data.volume24h;
+                document.getElementById("stat-volume").textContent = formatCompact(data.volume24h);
+            } else if (isValidNumber(lastKnownVolume)) {
+                document.getElementById("stat-volume").textContent = formatCompact(lastKnownVolume);
+            }
+
+            if (isValidNumber(data.supply)) {
+                document.getElementById("stat-supply").textContent = (data.supply / 1e6).toFixed(1) + "M";
+            } else {
+                var estimated = estimateCirculatingSupply();
+                document.getElementById("stat-supply").textContent = (estimated / 1e6).toFixed(1) + "M";
+            }
+
+            if (isValidNumber(dominance)) {
+                document.getElementById("stat-dominance").textContent = dominance.toFixed(1) + "%";
+            }
         }
 
         function updatePriceDisplay(data) {
@@ -393,7 +630,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             }
 
             changeAmountElement.textContent = hasAbsChange
-                ? "(" + (isPositive ? "+" : "") + "$" + data.priceChange24h.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ")"
+                ? "(" + (isPositive ? "+" : "-") + "$" + Math.abs(data.priceChange24h).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ")"
                 : "";
 
             document.getElementById("last-updated").textContent = new Date().toLocaleTimeString();
@@ -418,10 +655,77 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             document.getElementById("status-text").textContent = "Error";
         }
 
+        var cachedStats = null;
+
+        async function loadMarketStats() {
+            var statsData = {};
+            var dominance = undefined;
+
+            function mergeResult(result) {
+                if (!result || !isValidNumber(result.price) || result.price <= 0) return;
+                if (!statsData.marketCap && isValidNumber(result.marketCap)) statsData.marketCap = result.marketCap;
+                if (!statsData.volume24h && isValidNumber(result.volume24h)) statsData.volume24h = result.volume24h;
+                if (!statsData.supply && isValidNumber(result.supply)) statsData.supply = result.supply;
+                if (!statsData.priceChangePercent24h && isValidNumber(result.priceChangePercent24h)) {
+                    statsData.priceChangePercent24h = result.priceChangePercent24h;
+                    statsData.priceChange24h = result.priceChange24h;
+                }
+            }
+
+            var apiPromises = APIs.map(function(api) {
+                return tryFetchUrl(api.url).then(function(fetched) {
+                    mergeResult(api.parser(fetched.data));
+                }).catch(function() {});
+            });
+
+            var dominancePromise = tryFetchUrl("https://api.coingecko.com/api/v3/global").then(function(fetched) {
+                var data = fetched.data;
+                if (data && data.data && isValidNumber(data.data.market_cap_percentage.btc)) {
+                    dominance = data.data.market_cap_percentage.btc;
+                }
+            }).catch(function() {});
+
+            await Promise.all(apiPromises.concat(dominancePromise));
+
+            if (!statsData.marketCap && currentPrice) {
+                statsData.marketCap = currentPrice * estimateCirculatingSupply();
+            }
+
+            if (statsData.marketCap || statsData.volume24h || statsData.supply || isValidNumber(dominance) || isValidNumber(statsData.priceChangePercent24h)) {
+                cachedStats = { data: statsData, dominance: dominance };
+                updateMarketStats(statsData, dominance);
+            }
+        }
+
+        var isRefreshing = false;
+        async function manualRefresh() {
+            if (isRefreshing) return;
+            isRefreshing = true;
+            var btn = document.getElementById("refresh-price-btn");
+            btn.classList.add("spinning");
+            try {
+                await loadBitcoinPrice();
+                await loadMarketStats();
+            } finally {
+                btn.classList.remove("spinning");
+                isRefreshing = false;
+            }
+        }
+
         async function loadBitcoinPrice() {
             try {
                 var data = await fetchBitcoinPrice();
+
+                if (!isValidNumber(data.priceChangePercent24h) && cachedStats && isValidNumber(cachedStats.data.priceChangePercent24h)) {
+                    data.priceChangePercent24h = cachedStats.data.priceChangePercent24h;
+                    data.priceChange24h = cachedStats.data.priceChange24h;
+                }
+
                 updatePriceDisplay(data);
+
+                if (cachedStats) {
+                    updateMarketStats(cachedStats.data, cachedStats.dominance);
+                }
             } catch (e) {
                 showError();
             }
@@ -490,7 +794,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             document.getElementById("usd-input").addEventListener("input", function(e) { debouncedUsd(e.target.value); });
 
             loadBitcoinPrice();
+            loadMarketStats().then(function() {
+                if (cachedStats && isValidNumber(cachedStats.data.priceChangePercent24h) && currentPrice) {
+                    var data = {
+                        price: currentPrice,
+                        priceChangePercent24h: cachedStats.data.priceChangePercent24h,
+                        priceChange24h: cachedStats.data.priceChange24h
+                    };
+                    updatePriceDisplay(data);
+                }
+            });
+
             setInterval(loadBitcoinPrice, 30000);
+            setInterval(loadMarketStats, 3600000);
         });
     </script>
 </body>
