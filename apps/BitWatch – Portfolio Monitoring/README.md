@@ -55,18 +55,6 @@ Upload all files to any web server — no Node.js, no build step required.
 
 For example, upload to a `/bitcoin-bitwatch/` subfolder on your hosting and access it directly at `yourdomain.com/bitcoin-bitwatch/`.
 
-### WordPress Integration
-
-To embed BitWatch in a WordPress page, create a page template that loads the app in an iframe:
-
-```php
-<iframe
-  src="/bitcoin-bitwatch/index.html"
-  style="width:100%;min-height:100vh;border:none;display:block;"
-  title="BitWatch Portfolio Tracker"
-></iframe>
-```
-
 ## Data Storage
 
 All data is stored in the browser's localStorage — nothing is sent to any server. Your data stays on your device.
